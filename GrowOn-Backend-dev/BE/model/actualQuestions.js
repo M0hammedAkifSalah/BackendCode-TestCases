@@ -1,0 +1,321 @@
+// todo : duplicate need to check
+const mongoose = require('mongoose');
+
+const QuestionSchema = mongoose.Schema({
+	_id: mongoose.Schema.Types.ObjectId,
+	show_reason: {
+		type: Boolean,
+		default: false,
+	},
+	question_title: {
+		type: String,
+		required: [true, 'Generated Question Title Name'],
+	},
+	question_id: {
+		type: String,
+		required: false,
+	},
+	user_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+	},
+	coin: {
+		type: Number,
+		required: false,
+	},
+	award: {
+		type: Number,
+		required: false,
+	},
+	AssignDate: {
+		type: Date,
+		default: Date.now,
+	},
+	duration: {
+		type: String,
+		required: false,
+		default: '',
+	},
+	dueDate: {
+		type: Date,
+		required: false,
+		default: Date.now,
+	},
+	startDate: {
+		type: Date,
+		default: Date.now,
+		required: false,
+	},
+
+	school_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'School',
+		required: false,
+	},
+	class_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Class',
+		required: true,
+	},
+	detail_question_paper: {
+		board: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'Board',
+			},
+		],
+		chapters: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'Chapter',
+			},
+		],
+		class: {
+			type: mongoose.Schema.Types.ObjectId,
+			required: false,
+			ref: 'Class',
+		},
+		difficultyLevel: {
+			type: Object,
+			required: false,
+		},
+		subject: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'Subject',
+			},
+		],
+		syllabus: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'Syllabus',
+			},
+		],
+		topic: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'Topic',
+			},
+		],
+		language: {
+			type: String,
+			required: false,
+		},
+		studentType: {
+			type: Array,
+			required: false,
+		},
+		examType: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'ExamType',
+				required: false,
+			},
+		],
+		learningOutcome: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'LearnOutcome',
+			},
+		],
+		questionCategory: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				required: false,
+				ref: 'QuestionType',
+			},
+		],
+		totalQuestion: {
+			type: Number,
+			required: false,
+		},
+		attemptType: {
+			type: Object,
+			required: false,
+		},
+	},
+	section: [
+		{
+			section_name: {
+				type: String,
+				required: [false, 'section name required'],
+			},
+			information: {
+				type: String,
+				required: [false, 'section information required'],
+			},
+			question_list: [
+				{
+					questionCategory: {
+						type: Array,
+						required: false,
+						default: [],
+					},
+					difficultyLevel: {
+						type: String,
+						required: false,
+					},
+					learningOutcome: {
+						type: Array,
+						required: false,
+					},
+					quesionTitle: {
+						type: String,
+						required: false,
+					},
+					questionType: {
+						type: Array,
+						required: false,
+					},
+					questionName: {
+						type: String,
+						required: false,
+					},
+					question: {
+						type: Array,
+						required: false,
+					},
+					questions: {
+						type: Array,
+						default: [],
+					},
+					instruction: {
+						type: String,
+						required: false,
+					},
+					sectionInstructions: {
+						type: String,
+						required: false,
+					},
+					optionsType: {
+						type: String,
+					},
+					options: {
+						type: Array,
+						required: false,
+					},
+					answer: {
+						type: Array,
+						required: false,
+						default: '',
+					},
+					reason: {
+						type: String,
+						required: false,
+					},
+					totalMarks: {
+						type: Number,
+						required: false,
+					},
+					negativeMarks: {
+						type: Number,
+					},
+					negativeScore: {
+						type: String,
+						required: false,
+						enum: ['YES', 'NO'],
+					},
+					duration: {
+						type: String,
+						required: false,
+					},
+					matchOptions: {
+						type: Object,
+						required: false,
+					},
+				},
+			],
+		},
+	],
+	assignTo: {
+		type: [
+			{
+				student_id: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'Student',
+					required: true,
+				},
+				section_id: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'Section',
+					required: true,
+				},
+				class_id: {
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'Class',
+					required: true,
+				},
+				status_priority: {
+					type: Number,
+					default: 0,
+					enum: [0, 1, 2],
+				},
+				status: {
+					type: String,
+					default: 'Pending',
+				},
+				startTime: {
+					type: String,
+				},
+				submitDate: {
+					type: Date,
+					default: Date.now,
+				},
+			},
+		],
+		default: [],
+	},
+	createdBy: {
+		type: String,
+		required: false,
+	},
+	updatedBy: {
+		type: String,
+		required: false,
+	},
+	createdAt: {
+		type: Date,
+		default: Date.now,
+	},
+	updatedAt: {
+		type: Date,
+		default: Date.now,
+	},
+	repository: {
+		type: Array,
+		required: false,
+	},
+	isGlobal: {
+		type: Boolean,
+		required: false,
+	},
+	autoGeneratedQuestion: {
+		type: Boolean,
+		required: false,
+		default: false,
+	},
+	autoGeneratedQuestionCount: {
+		type: Object,
+		required: false,
+		default: {},
+	},
+	privateQuestionFlag: {
+		type: Boolean,
+		required: false,
+		default: false,
+	},
+	privateQuestionTeacherId: {
+		type: mongoose.Schema.Types.ObjectId,
+		required: false,
+		ref: 'User',
+	},
+});
+const actualQuestion = mongoose.model('actualQuestion', QuestionSchema);
+
+module.exports = actualQuestion;

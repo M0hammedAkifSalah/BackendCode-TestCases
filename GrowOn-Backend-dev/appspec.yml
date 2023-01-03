@@ -1,0 +1,13 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /var/www/html
+    overwrite: true
+hooks:
+  BeforeInstall:
+    - location: scripts/clear-project.sh
+      timeout: 300
+  AfterInstall:
+    - location: scripts/BackEnd-Dependencies.sh
+      timeout: 600

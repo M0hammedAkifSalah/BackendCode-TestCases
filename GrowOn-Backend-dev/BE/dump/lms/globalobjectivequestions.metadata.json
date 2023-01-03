@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"lms.globalobjectivequestions"},{"v":2,"unique":true,"key":{"question_count":1},"name":"question_count_1","ns":"lms.globalobjectivequestions","background":true}],"uuid":"c8944e8c62c44ef6b59b80e5c7231ee1"}
