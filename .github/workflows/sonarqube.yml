@@ -34,6 +34,7 @@ jobs:
       timeout-minutes: 5
       env:
         SONAR_TOKEN: sqp_b6916181065544397f83972e14205ed04971ba53
+        SONAR_HOST_URL: http://65.0.97.30:9000
           
           
           
