@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the files
+      uses: actions/checkout@v3
+     
+    - name: SETUP NODE.JS ENVIRONMENT
+      uses: actions/setup-node@v3.3.0
+      
+    - name: NPM INSTALL & NPM BUILD
+      run: |
+          cd /home/runner/work/BackendCode-TestCases/BackendCode-TestCases/GrowOn-Backend-dev/BE
+          npm install
+          npm run test
+#     - name: sonar scanning 
+#     - uses: sonarsource/sonarqube-scan-action@master
+#       with:
+#         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+#       env:
+#         SONAR_TOKEN: sqp_b6916181065544397f83972e14205ed04971ba53
+#         SONAR_HOST_URL: http://65.0.97.30:9000
+#       # If you wish to fail your job when the Quality Gate is red, uncomment the
+#       # following lines. This would typically be used to fail a deployment.
+#       # - uses: sonarsource/sonarqube-quality-gate-action@master
+#       #   timeout-minutes: 5
+#       #   env:
+#       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
