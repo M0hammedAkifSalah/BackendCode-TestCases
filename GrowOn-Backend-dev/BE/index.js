@@ -5,7 +5,7 @@ require('dotenv').config({
 	path: `.${NODE_ENV}.env`,
 });
 
-// APM setup
+/// APM setup
 const apm = require('elastic-apm-node');
 
 const { ELASTIC_APM_SERVICE_NAME, ELASTIC_APM_SERVER_URL } = process.env;
