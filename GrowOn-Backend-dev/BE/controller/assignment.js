@@ -38,7 +38,7 @@ async function getSections(user_id) {
 		{ _id: mongoose.Types.ObjectId(user_id) },
 		{ name: 1, primary_class: 1, secondary_class: 1, school_id: 1, coin: 1 }
 	);
-	const { secondary_class, school_id, primary_class, coin } = userData;
+	const { secondary_class = [], school_id, primary_class, coin } = userData;
 	let sectionList = await SectionModel.find(
 		{
 			class_id: primary_class,
@@ -1563,14 +1563,14 @@ async function getDetails(classId, sectionId, teacherId, date) {
 }
 
 exports.AssignmentCreate = catchAsync(async (req, res, next) => {
-	const report = {};
-	const {
+	let {
 		isGroup,
 		updatedBy,
 		createdBy,
 		startDate,
 		EndDate,
 		status,
+		sectionList = [],
 		description,
 		coin,
 		subject,
@@ -1578,13 +1578,22 @@ exports.AssignmentCreate = catchAsync(async (req, res, next) => {
 		file,
 		image,
 		sub_title,
-		assignTo,
+		assignTo = [],
 		title,
 		teacher_id,
 		school_id,
 		class_id,
 		group_id,
 	} = req.body;
+	if (sectionList.length > 0) {
+		for (const section of sectionList) {
+			const students = await Student.find(
+				{ section },
+				{ _id: 0, student_id: '$_id', section_id: '$section' }
+			);
+			assignTo = assignTo.concat(students);
+		}
+	}
 	const AssignmentData = new Assignment({
 		_id: new mongoose.Types.ObjectId(),
 		title,
@@ -1607,6 +1616,7 @@ exports.AssignmentCreate = catchAsync(async (req, res, next) => {
 		created_by: createdBy,
 		updated_by: updatedBy,
 	});
+	console.log('assId', String(AssignmentData._id));
 	const teacherData = await User.findById(teacher_id);
 
 	// TODO: find different sections from assignTo array and make them as properties in report object.
@@ -1634,10 +1644,12 @@ exports.AssignmentCreate = catchAsync(async (req, res, next) => {
 		const arrOfDeviceToken = [];
 		const studentIds = [];
 
-		AssignmentData.assignTo.forEach(({ DeviceToken = null, _id = null }) => {
-			DeviceToken ? arrOfDeviceToken.push(DeviceToken) : null;
-			_id ? studentIds.push(_id) : null;
-		});
+		AssignmentData.assignTo.forEach(
+			({ DeviceToken = null, student_id = null }) => {
+				DeviceToken ? arrOfDeviceToken.push(DeviceToken) : null;
+				student_id ? studentIds.push(student_id) : null;
+			}
+		);
 
 		let newImage;
 		if (!teacherData.profile_image) {
@@ -1663,9 +1675,9 @@ exports.AssignmentCreate = catchAsync(async (req, res, next) => {
 				type: 'Assignment',
 			},
 		};
-
-		firebaseNoti.sendToDeviceFirebase(payload, arrOfDeviceToken);
-
+		if (arrOfDeviceToken.length) {
+			firebaseNoti.sendToDeviceFirebase(payload, arrOfDeviceToken);
+		}
 		await depositCoin(5, teacherData._id, 'TEACHER');
 		await Student.updateMany(
 			{ _id: { $in: studentIds } },
@@ -4228,105 +4240,112 @@ exports.assignmentByClass = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllsections = catchAsync(async (req, res, next) => {
-	try {
-		const { teacher_id, StartDate } = req.body;
-		let { school_id } = req.body;
-		const { startDate, endDate } = getDailyDates(StartDate);
-		let classList = null;
-		if (teacher_id) {
-			const userData = await User.findOne(
-				{ _id: mongoose.Types.ObjectId(teacher_id) },
-				{ name: 1, primary_class: 1, secondary_class: 1, school_id: 1 }
-			);
-			const { secondary_class, primary_class } = userData;
-			classList = secondary_class.map(e =>
-				mongoose.Types.ObjectId(e.secondClasses)
-			);
-			classList.push(primary_class);
+	const { teacher_id, StartDate } = req.body;
+	let { school_id } = req.body;
+	const { startDate, endDate } = getDailyDates(StartDate);
+	let classList = [];
+	if (teacher_id) {
+		const userData = await User.findOne(
+			{ _id: mongoose.Types.ObjectId(teacher_id) },
+			{ name: 1, primary_class: 1, secondary_class: 1, school_id: 1 }
+		);
+		if (userData) {
+			const { secondary_class = [], primary_class = null } = userData;
+
+			classList =
+				secondary_class !== null
+					? secondary_class.map(e => mongoose.Types.ObjectId(e.secondClasses))
+					: [];
+			if (primary_class) {
+				classList.push(primary_class);
+			}
 			school_id = userData.school_id;
-		} else {
-			classList = await School.findOne({ _id: school_id }, { classList: 1 });
-			classList = classList.classList;
 		}
-		const classes = await SectionModel.aggregate([
-			{
-				$match: {
-					school: mongoose.Types.ObjectId(school_id),
-					class_id: {
-						$in: classList,
-					},
-				},
-			},
-			{
-				$lookup: {
-					from: 'students',
-					localField: '_id',
-					foreignField: 'section',
-					as: 'students',
-				},
-			},
-			{
-				$match: {
-					students: {
-						$ne: [],
-					},
-				},
-			},
-			{
-				$lookup: {
-					from: 'classes',
-					let: {
-						class: '$class_id',
-					},
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$eq: ['$_id', '$$class'],
-								},
-							},
-						},
-						{
-							$project: {
-								name: 1,
-							},
-						},
-					],
-					as: 'class_id',
-				},
-			},
-			{
-				$unwind: '$class_id',
-			},
-			{
-				$group: {
-					_id: '$class_id',
-					sections: {
-						$push: {
-							_id: '$_id',
-							name: '$name',
-						},
-					},
-				},
-			},
-			{
-				$project: {
-					_id: '$_id._id',
-					name: '$_id.name',
-					sections: '$sections',
-				},
-			},
-		]);
-		res.status(200).json({
-			status: 'success',
-			classes,
-		});
-	} catch (err) {
-		console.log('err', err.message);
-		res.status(400).json({
-			message: err.message,
-		});
+	} else {
+		classList = await School.findOne({ _id: school_id }, { classList: 1 });
+		classList = classList.classList;
 	}
+	const classes = await SectionModel.aggregate([
+		{
+			$match: {
+				school: mongoose.Types.ObjectId(school_id),
+				class_id: {
+					$in: classList,
+				},
+			},
+		},
+		{
+			$lookup: {
+				from: 'students',
+				localField: '_id',
+				foreignField: 'section',
+				as: 'students',
+			},
+		},
+		{
+			$match: {
+				students: {
+					$ne: [],
+				},
+			},
+		},
+		{
+			$lookup: {
+				from: 'classes',
+				let: {
+					class: '$class_id',
+				},
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ['$_id', '$$class'],
+							},
+						},
+					},
+					{
+						$project: {
+							name: 1,
+							sequence_number: 1,
+						},
+					},
+				],
+				as: 'class_id',
+			},
+		},
+		{
+			$unwind: '$class_id',
+		},
+		{
+			$group: {
+				_id: '$class_id',
+				sections: {
+					$push: {
+						_id: '$_id',
+						name: '$name',
+					},
+				},
+			},
+		},
+		{
+			$project: {
+				_id: '$_id._id',
+				name: '$_id.name',
+				sequence_number: '$_id.sequence_number',
+				sections: '$sections',
+			},
+		},
+		{
+			$sort: {
+				sequence_number: 1,
+			},
+		},
+	]);
+
+	res.status(200).json({
+		status: 'success',
+		classes,
+	});
 });
 
 exports.GetDoubts = catchAsync(async (req, res, next) => {

@@ -1,7 +1,4 @@
 const cron = require('node-cron');
-const { appsignal } = require('../../appsignal');
-
-const tracer = appsignal.tracer();
 
 const SchoolModel = require('../../model/school');
 
@@ -21,6 +18,6 @@ cron.schedule('* * * * *', async () => {
 			}
 		);
 	} catch (e) {
-		tracer.setError(e);
+		console.error(e);
 	}
 });

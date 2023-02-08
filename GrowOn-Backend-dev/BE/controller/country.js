@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 const CountryModel = require('../model/country');
-const APIFeatures = require('../utils/apiFeatures');
+
+const redisClient = require('../config/redisClient');
+const catchAsync = require('../utils/catchAsync');
 
 exports.createCountry = async (req, res) => {
 	try {
@@ -53,36 +55,27 @@ exports.createCountry = async (req, res) => {
 	}
 };
 
-exports.getAllData = async (req, res) => {
-	try {
-		const features = new APIFeatures(CountryModel.find({}), req.query)
-			.filter()
-			.sort()
-			.limitFields()
-			.paginate();
-		const countryData = await features.query;
-		if (countryData) {
-			res.json({
-				status: 200,
-				message: 'success',
-				results: countryData.length,
-				data: countryData,
-			});
-		} else {
-			res.json({
-				status: 200,
-				message: 'no data found',
-				results: countryData.length,
-				data: countryData,
-			});
-		}
-	} catch (err) {
-		res.json({
-			status: 404,
-			message: err,
+exports.getAllData = catchAsync(async (req, res) => {
+	const cacheKey = `countries:all`;
+	const cachedData = await redisClient.GET(cacheKey);
+
+	let countriesData = [];
+	if (cachedData) {
+		countriesData = JSON.parse(cachedData);
+	} else {
+		countriesData = await CountryModel.find({});
+		await redisClient.SET(cacheKey, JSON.stringify(countriesData), {
+			EX: 24 * 60 * 60,
 		});
 	}
-};
+
+	res.json({
+		status: 200,
+		message: 'success',
+		results: countriesData.length,
+		data: countriesData,
+	});
+});
 
 exports.getById = async (req, res) => {
 	try {

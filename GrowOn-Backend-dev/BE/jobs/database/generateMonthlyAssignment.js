@@ -1,8 +1,5 @@
 const cron = require('node-cron');
 const moment = require('moment');
-const { appsignal } = require('../../appsignal');
-
-const tracer = appsignal.tracer();
 
 const generateAssignmentReport = require('../../helper/generateAssignmentReport');
 const AssignmentReportModel = require('../../model/assignmentReport');
@@ -145,7 +142,6 @@ cron.schedule('0 0 1 * *', async () => {
 			}
 		}
 	} catch (e) {
-		console.error('error', e);
-		tracer.setError(e);
+		console.error(e);
 	}
 });

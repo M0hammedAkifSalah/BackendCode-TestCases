@@ -1,7 +1,4 @@
 const cron = require('node-cron');
-const { appsignal } = require('../../appsignal');
-
-const tracer = appsignal.tracer();
 
 const AttendanceModel = require('../../model/attendance');
 const StudentModel = require('../../model/student');
@@ -90,6 +87,6 @@ cron.schedule('30 22 * * *', async () => {
 			throw new Error(rejected);
 		}
 	} catch (e) {
-		tracer.setError(e);
+		console.error(e);
 	}
 });

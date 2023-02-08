@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\utils\successResponse.spec.js">
+        <testCase name="successResponse unit tests SuccessResponse returns the expected output with no arguments" duration="5"/>
+        <testCase name="successResponse unit tests SuccessResponse returns the expected output with data and records arguments" duration="1"/>
+        <testCase name="successResponse unit tests SuccessResponse returns the expected output with data and message arguments" duration="1"/>
+        <testCase name="successResponse unit tests SuccessResponse returns the expected output with all arguments" duration="0"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\utils\apifeatures.spec.js">
+        <testCase name="APIFeatures filter method with different queries" duration="7"/>
+        <testCase name="APIFeatures sort method with different queries" duration="3"/>
+        <testCase name="APIFeatures sortA, sortbyname, and sortbyCount methods with different queries" duration="2"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\utils\email.spec.js">
+        <testCase name="sendEmail should send an email" duration="5"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\models\questionPaper.spec.js">
+        <testCase name="questionPaper Model Validation test title field is required" duration="15"/>
+        <testCase name="questionPaper Model Validation test questionCount field is required" duration="2"/>
+        <testCase name="questionPaper Model Validation test totalMarks field is required" duration="2"/>
+        <testCase name="questionPaper Model Validation test question field is required" duration="54">
+            <failure message="TypeError: Cannot read property &apos;message&apos; of undefined"><![CDATA[TypeError: Cannot read property 'message' of undefined
+    at Object.message (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\models\questionPaper.spec.js:25:32)
+    at Promise.then.completed (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:289:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:222:10)
+    at _callCircusTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:248:40)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at _runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:184:3)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:86:9)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:81:9)
+    at run (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:26:3)
+    at runAndTransformResultsToJestFormat (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:120:21)
+    at jestAdapter (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\testWorker.js:106:12)]]></failure>
+        </testCase>
+        <testCase name="questionPaper Model Validation test options field is required" duration="1">
+            <failure message="TypeError: Cannot read property &apos;message&apos; of undefined"><![CDATA[TypeError: Cannot read property 'message' of undefined
+    at Object.message (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\models\questionPaper.spec.js:30:31)
+    at Promise.then.completed (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:289:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:222:10)
+    at _callCircusTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:248:40)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at _runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:184:3)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:86:9)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:81:9)
+    at run (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:26:3)
+    at runAndTransformResultsToJestFormat (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:120:21)
+    at jestAdapter (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\testWorker.js:106:12)]]></failure>
+        </testCase>
+        <testCase name="questionPaper Model Validation test answer field is required" duration="2">
+            <failure message="TypeError: Cannot read property &apos;message&apos; of undefined"><![CDATA[TypeError: Cannot read property 'message' of undefined
+    at Object.message (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\models\questionPaper.spec.js:35:30)
+    at Promise.then.completed (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:289:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:222:10)
+    at _callCircusTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:248:40)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at _runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:184:3)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:86:9)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:81:9)
+    at run (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:26:3)
+    at runAndTransformResultsToJestFormat (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:120:21)
+    at jestAdapter (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\testWorker.js:106:12)]]></failure>
+        </testCase>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\models\userAttendanceModel.spec.js">
+        <testCase name="userAttendance Model Validation test teacherId field is required and of type ObjectId" duration="19"/>
+        <testCase name="userAttendance Model Validation test schoolId field is required and of type ObjectId" duration="10"/>
+        <testCase name="userAttendance Model Validation test status field is required and is a valid value in the statusesEnum array" duration="4"/>
+        <testCase name="userAttendance Model Validation test it should check if the date object" duration="7">
+            <failure message="Error: expect(received).toEqual(expected) // deep equality"><![CDATA[Error: expect(received).toEqual(expected) // deep equality
+
+Expected: 2023-02-08T04:54:19.561Z
+Received: 2023-02-08T04:54:19.560Z
+    at Object.toEqual (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\models\userAttendanceModel.spec.js:42:31)
+    at Promise.then.completed (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:289:28)
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\utils.js:222:10)
+    at _callCircusTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:248:40)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at _runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:184:3)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:86:9)
+    at _runTestsForDescribeBlock (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:81:9)
+    at run (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\run.js:26:3)
+    at runAndTransformResultsToJestFormat (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:120:21)
+    at jestAdapter (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\testWorker.js:106:12)]]></failure>
+        </testCase>
+        <testCase name="userAttendance Model Validation test workingHours field is of type Number and has a default value of 0" duration="4"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\utils\errorResponse.spec.js">
+        <testCase name="ErrorResponse should create an error with a message and a status code" duration="2"/>
+        <testCase name="ErrorResponse should create an error with a message and a non-4xx status code" duration="2"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\utils\password.spec.js">
+        <testCase name="password util should return hashed password" duration="5"/>
+        <testCase name="password util should return jwt token" duration="1"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\questionPaper.spec.js">
+        <testCase name="question paper controller methods create controller method should return invalid input error" duration="6"/>
+        <testCase name="question paper controller methods create controller method should return record created message" duration="2"/>
+        <testCase name="question paper controller methods getById controller  should return no mcqpaper found error" duration="1"/>
+        <testCase name="question paper controller methods getById controller  should get a multiple choice paper by its ID and return it" duration="2"/>
+        <testCase name="question paper controller methods updateById controller  should return no mcqpaper found error" duration="1"/>
+        <testCase name="question paper controller methods updateById controller  should update a multiple choice paper by its ID and return it" duration="1"/>
+        <testCase name="question paper controller methods deleteById controller  should return no mcqpaper found error" duration="1"/>
+        <testCase name="question paper controller methods deleteById controller  should update a multiple choice paper by its ID and return it" duration="1"/>
+        <testCase name="question paper controller methods assign the mcq paper controller should return invalid question paper id error" duration="1"/>
+        <testCase name="question paper controller methods assign the mcq paper controller should return studentList empty error" duration="2"/>
+        <testCase name="question paper controller methods assign the mcq paper controller should assign the mcq Paper to students" duration="2"/>
+        <testCase name="question paper controller methods evaluate the submitted answers controller should return an error if studentId or assessmentId is not provided" duration="2"/>
+        <testCase name="question paper controller methods evaluate the submitted answers controller should return an error if answerList is empty" duration="1"/>
+        <testCase name="question paper controller methods evaluate the submitted answers controller should update the marksObtained for the student if a match is found" duration="2"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\utils\protect.spec.js">
+        <testCase name="Protect MiddleWare should return next for allowed path" duration="6"/>
+        <testCase name="Protect MiddleWare should return not authorized when no authorization header is passed" duration="2"/>
+        <testCase name="Protect MiddleWare should return not authorized when no token is passed" duration="1"/>
+        <testCase name="Protect MiddleWare should return Invalid token when invalid token is passed" duration="2"/>
+        <testCase name="Protect MiddleWare should return the user-info when the info is cached" duration="1"/>
+    </file>
+    <file path="C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js">
+        <testCase name="UserAttendance Controller GetAll controller method should return a list of users" duration="5"/>
+        <testCase name="UserAttendance Controller create controller method should field validation error" duration="1"/>
+        <testCase name="UserAttendance Controller create controller method should return error if no login time" duration="10006">
+            <failure message="Error: thrown: &quot;Exceeded timeout of 10000 ms for a test."><![CDATA[Error: thrown: "Exceeded timeout of 10000 ms for a test.
+Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
+    at it (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:107:3)
+    at _dispatchDescribe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:91:26)
+    at describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:55:5)
+    at describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:92:2)
+    at _dispatchDescribe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:91:26)
+    at describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:55:5)
+    at Object.describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:72:1)
+    at Runtime._execModule (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runtime\build\index.js:1377:24)
+    at Runtime._loadModule (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runtime\build\index.js:989:12)
+    at Runtime.requireModule (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runtime\build\index.js:849:12)
+    at jestAdapter (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:77:13)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at runTestInternal (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\testWorker.js:106:12)]]></failure>
+        </testCase>
+        <testCase name="UserAttendance Controller create controller method should return create a new attendance" duration="10006">
+            <failure message="Error: thrown: &quot;Exceeded timeout of 10000 ms for a test."><![CDATA[Error: thrown: "Exceeded timeout of 10000 ms for a test.
+Use jest.setTimeout(newTimeout) to increase the timeout value, if this is a long-running test."
+    at it (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:127:3)
+    at _dispatchDescribe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:91:26)
+    at describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:55:5)
+    at describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:92:2)
+    at _dispatchDescribe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:91:26)
+    at describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\index.js:55:5)
+    at Object.describe (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:72:1)
+    at Runtime._execModule (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runtime\build\index.js:1377:24)
+    at Runtime._loadModule (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runtime\build\index.js:989:12)
+    at Runtime.requireModule (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runtime\build\index.js:849:12)
+    at jestAdapter (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:77:13)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at runTestInternal (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\node_modules\jest-runner\build\testWorker.js:106:12)]]></failure>
+        </testCase>
+        <testCase name="UserAttendance Controller getAllAttendance controller method should return error if fields are missing" duration="2"/>
+        <testCase name="UserAttendance Controller getAllAttendance controller method should return error if no users exists" duration="20"/>
+        <testCase name="UserAttendance Controller getAllAttendance controller method should return users" duration="3"/>
+        <testCase name="UserAttendance Controller getById controller method should return no attendance found error" duration="1"/>
+        <testCase name="UserAttendance Controller getById controller method should return attendance found record" duration="1"/>
+        <testCase name="UserAttendance Controller updateById controller method should return no attendance found error" duration="1"/>
+        <testCase name="UserAttendance Controller updateById controller method should return updated attendance record" duration="1"/>
+        <testCase name="UserAttendance Controller deleteById controller method should return no attendance found error" duration="1"/>
+        <testCase name="UserAttendance Controller deleteById controller method should return updated attendance record" duration="1"/>
+        <testCase name="UserAttendance Controller userMonthlyReport controller method should return attendance report not found error" duration="2"/>
+        <testCase name="UserAttendance Controller userMonthlyReport controller method should return monthly array report" duration="3"/>
+        <testCase name="UserAttendance Controller verify location controller method should return log and lat missing error" duration="1"/>
+        <testCase name="UserAttendance Controller verify location controller method should return school not registered error" duration="1"/>
+        <testCase name="UserAttendance Controller verify location controller method should return no location pinned error" duration="1"/>
+        <testCase name="UserAttendance Controller verify location controller method should return not in location error" duration="1"/>
+        <testCase name="UserAttendance Controller verify location controller method should return in location response" duration="0"/>
+        <testCase name="UserAttendance Controller report conttroller method should return input validation error" duration="2">
+            <failure message="Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 422
+
+Number of calls: 0
+    at toHaveBeenCalledWith (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:583:23)
+    at tryCatch (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.<anonymous> (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at asyncGeneratorStep (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at _next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)]]></failure>
+        </testCase>
+        <testCase name="UserAttendance Controller report conttroller method should return invalid date error" duration="1">
+            <failure message="Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 422
+
+Number of calls: 0
+    at toHaveBeenCalledWith (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:597:23)
+    at tryCatch (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.<anonymous> (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at asyncGeneratorStep (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at _next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)]]></failure>
+        </testCase>
+        <testCase name="UserAttendance Controller report conttroller method should return no data found" duration="4">
+            <failure message="Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 404
+
+Number of calls: 0
+    at toHaveBeenCalledWith (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:614:23)
+    at tryCatch (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.<anonymous> (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at asyncGeneratorStep (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at _next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)]]></failure>
+        </testCase>
+        <testCase name="UserAttendance Controller report conttroller method should return no data found" duration="1">
+            <failure message="Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)"><![CDATA[Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+Expected: 200
+
+Number of calls: 0
+    at toHaveBeenCalledWith (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:643:23)
+    at tryCatch (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.<anonymous> (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at Generator.next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at asyncGeneratorStep (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)
+    at _next (C:\Users\Akif\Desktop\Fresh\GrowOn-Backend-main\BE\__tests__\controllers\userAttendance.spec.js:2:1)]]></failure>
+        </testCase>
+    </file>
+</testExecutions>

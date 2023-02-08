@@ -3,8 +3,10 @@ const StateModel = require('../model/state');
 const { stateArray } = require('../utils/stateArray.json');
 const { fetchCityAndState } = require('../utils/cities.js');
 const CountryModel = require('../model/country');
-const APIFeatures = require('../utils/apiFeatures');
 const CityModel = require('../model/city');
+
+const redisClient = require('../config/redisClient');
+const catchAsync = require('../utils/catchAsync');
 
 exports.Create = (req, res, next) => {
 	try {
@@ -57,39 +59,27 @@ exports.Create = (req, res, next) => {
 	}
 };
 
-exports.getAllData = async (req, res) => {
-	try {
-		const features = new APIFeatures(
-			StateModel.find({}).select('-createdAt -updatedAt'),
-			req.query
-		)
-			.filter()
-			.sort()
-			.limitFields()
-			.paginate();
-		const stateData = await features.query;
-		if (stateData) {
-			res.json({
-				status: 200,
-				message: 'success',
-				result: stateData.length,
-				data: stateData,
-			});
-		} else {
-			res.json({
-				status: 200,
-				message: 'no data found',
-				result: stateData.length,
-				data: stateData,
-			});
-		}
-	} catch (err) {
-		res.json({
-			status: 404,
-			message: err,
+exports.getAllData = catchAsync(async (req, res) => {
+	const cacheKey = `states:all`;
+	const cachedData = await redisClient.GET(cacheKey);
+
+	let statesData = [];
+	if (cachedData) {
+		statesData = JSON.parse(cachedData);
+	} else {
+		statesData = await StateModel.find({});
+		await redisClient.SET(cacheKey, JSON.stringify(statesData), {
+			EX: 24 * 60 * 60,
 		});
 	}
-};
+
+	res.status(200).json({
+		status: 200,
+		message: 'success',
+		results: statesData.length,
+		data: statesData,
+	});
+});
 
 exports.bulkCreate = async (req, res, next) => {
 	try {

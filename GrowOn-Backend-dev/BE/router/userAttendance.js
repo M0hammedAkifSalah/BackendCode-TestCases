@@ -15,6 +15,8 @@ router
 
 router.route('/report/userMonthly').get(attendanceController.userMonthlyReport);
 
+router.get('/report', attendanceController.report);
+
 router
 	.route('/:id')
 	.get(attendanceController.getById)

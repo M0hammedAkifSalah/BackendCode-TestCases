@@ -1,9 +1,6 @@
 const cron = require('node-cron');
 const mongoose = require('mongoose');
 const redisClient = require('../../config/redisClient');
-const { appsignal } = require('../../appsignal');
-
-const tracer = appsignal.tracer();
 
 const schoolModel = require('../../model/school');
 const InstituteModel = require('../../model/institute');
@@ -259,6 +256,6 @@ cron.schedule('0 12 * * *', async () => {
 			throw new Error(rejected);
 		}
 	} catch (e) {
-		tracer.setError(e);
+		console.error(e);
 	}
 });

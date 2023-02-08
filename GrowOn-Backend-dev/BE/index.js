@@ -5,12 +5,18 @@ require('dotenv').config({
 	path: `.${NODE_ENV}.env`,
 });
 
-// eslint-disable-next-line import/order
-const { appsignal } = require('./appsignal');
-const {
-	expressMiddleware,
-	expressErrorHandler,
-} = require('@appsignal/express');
+// APM setup
+const apm = require('elastic-apm-node');
+
+const { ELASTIC_APM_SERVICE_NAME, ELASTIC_APM_SERVER_URL } = process.env;
+
+apm.start({
+	serviceName: ELASTIC_APM_SERVICE_NAME,
+	serverUrl: ELASTIC_APM_SERVER_URL,
+	active: NODE_ENV === 'production',
+	captureBody: 'errors',
+});
+
 const express = require('express');
 const fileupload = require('express-fileupload');
 
@@ -133,8 +139,6 @@ if (NODE_ENV !== 'development' && instanceId === 1) {
 	require('./jobs');
 }
 
-app.use(expressMiddleware(appsignal));
-
 // swagger docs
 app.use(`/api/v1/docs`, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get('/checkenv', (req, res) => {
@@ -189,6 +193,7 @@ app.use(
 	'/api/v1/generatedQuestionWithId',
 	require('./router/generatedQuestionWithId')
 );
+
 app.use('/api/v1/generatedQuestion', require('./router/generateQuestion'));
 app.use('/api/v1/actualQuestions', require('./router/actaulQuestion'));
 app.use('/api/v1/announcement', require('./router/announcement'));
@@ -216,6 +221,7 @@ app.use('/api/v1/curriculum', require('./router/curriculum'));
 app.use('/api/v1/post', require('./router/post'));
 app.use('/api/v1/features', require('./router/features'));
 app.use('/api/v1/filedirectory', require('./router/fileDirectory'));
+app.use('/api/v1/assessment', require('./router/questionPaper'));
 
 app.use('/', image);
 
@@ -223,9 +229,9 @@ app.all('*', (req, res, next) => {
 	next(new ErrorResponse(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-app.use((err, req, res, next) => {
-	expressErrorHandler(appsignal);
-	errorHandler(err, req, res, next);
+app.use((err, req, res, nxt) => {
+	apm.captureError(err);
+	errorHandler(err, req, res, nxt);
 });
 
 const port = process.env.port || 3000;
@@ -233,3 +239,5 @@ const port = process.env.port || 3000;
 httpServer.listen(port, () => {
 	console.log(`server in running on PORT: ${port} - ENV: ${NODE_ENV}`);
 });
+
+exports.apm = apm;

@@ -57,6 +57,9 @@ exports.GetDir = catchAsync(async (req, res, next) => {
 			$match: matchQuery,
 		},
 		{
+			$sort: { createdAt: -1 },
+		},
+		{
 			$lookup: {
 				from: 'users',
 				let: { userId: '$uploadedBy' },

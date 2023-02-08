@@ -306,6 +306,7 @@ exports.excelSheet = catchAsync(async (req, res, next) => {
 
 exports.Create = async (req, res) => {
 	try {
+		let { secondary_class = [] } = req.body;
 		let isSubmitForm = null;
 		let hashPassword = '000';
 		let isTeacher = false;
@@ -318,34 +319,39 @@ exports.Create = async (req, res) => {
 						isSubmitForm = true;
 						hashPassword = req.body.password;
 					}
-					if (schoolAdmin.role_name === 'teacher') {
+					if (
+						schoolAdmin.role_name === 'teacher' ||
+						schoolAdmin.role_name === 'principal'
+					) {
 						isTeacher = true;
 					}
 				}
 			});
 
-		const sectionsList = await SectionModel.aggregate([
-			{
-				$match: {
-					school: mongoose.Types.ObjectId(req.body.school_id),
-				},
-			},
-			{
-				$group: {
-					_id: '$class_id',
-					section: {
-						$push: '$_id',
+		if (secondary_class.length === 0) {
+			secondary_class = await SectionModel.aggregate([
+				{
+					$match: {
+						school: mongoose.Types.ObjectId(req.body.school_id),
 					},
 				},
-			},
-			{
-				$project: {
-					_id: 0,
-					secondClasses: '$_id',
-					section: 1,
+				{
+					$group: {
+						_id: '$class_id',
+						section: {
+							$push: '$_id',
+						},
+					},
 				},
-			},
-		]);
+				{
+					$project: {
+						_id: 0,
+						secondClasses: '$_id',
+						section: 1,
+					},
+				},
+			]);
+		}
 
 		const pin_code = null;
 		UserModel.find({
@@ -365,6 +371,7 @@ exports.Create = async (req, res) => {
 					_id: new mongoose.Types.ObjectId(),
 					username: req.body.mobile,
 					activeStatus: true,
+					authorized: req.body.authorized,
 					profile_image: req.body.profile_image,
 					name: req.body.name,
 					mobile: req.body.mobile,
@@ -382,7 +389,7 @@ exports.Create = async (req, res) => {
 					qualification: req.body.qualification,
 					primary_class: req.body.primary_class,
 					primary_section: req.body.primary_section,
-					secondary_class: isTeacher ? sectionsList : [], // ...req.body.secondary_class, ...sectionsList
+					secondary_class: isTeacher ? secondary_class : [], // ...req.body.secondary_class, ...sectionsList
 					subject: req.body.subject,
 					dob: req.body.dob,
 					email: req.body.email,
@@ -402,6 +409,8 @@ exports.Create = async (req, res) => {
 					pincode: req.body.pincode,
 					leaderShip_Exp: req.body.leaderShip_Exp,
 					cv: req.body.cv,
+					esi_number: req.body.esi_number,
+					pf_number: req.body.pf_number,
 					ten_details: req.body.ten_details,
 					twelve_details: req.body.twelve_details,
 					graduation_details: req.body.graduation_details,
@@ -413,6 +422,7 @@ exports.Create = async (req, res) => {
 					repository: req.body.repository,
 					createdBy: req.body.createdBy,
 					updatedBy: req.body.updatedBy,
+					permissions: req.body.permissions,
 				});
 				userObj
 					.save()
@@ -786,6 +796,7 @@ exports.userByRole = async (req, res) => {
 				.populate('secondary_profile_type', 'display_name')
 				.populate('school_id')
 				.populate('branch_id', '_id name')
+				.populate('country state city', 'country_name state_name city_name')
 				.populate('profile_type')
 				.select('-createdAt -updatedAt'),
 			req.body
@@ -1566,6 +1577,7 @@ exports.Update = async (req, res) => {
 			experience_list: req.body.experience_list,
 			createdBy: req.body.createdBy,
 			updatedBy: req.body.updatedBy,
+			permissions: req.body.permissions,
 		};
 		UserModel.findByIdAndUpdate(
 			{
@@ -1886,6 +1898,7 @@ exports.validationCheck = async (req, res, next) => {
 			case 'school_admin': {
 				const userData = await UserModel.find({
 					mobile,
+					designation: 'school_admin',
 				});
 				if (userData.length) {
 					const roleId = userData[0].profile_type;
@@ -1914,6 +1927,7 @@ exports.validationCheck = async (req, res, next) => {
 			case 'teacher': {
 				const teacherData = await UserModel.find({
 					mobile,
+					designation: 'teacher',
 				});
 				if (teacherData.length) {
 					const roleId = teacherData[0].profile_type;
@@ -1942,6 +1956,7 @@ exports.validationCheck = async (req, res, next) => {
 			case 'principal': {
 				const principleData = await UserModel.find({
 					mobile,
+					designation: 'principal',
 				});
 				if (principleData.length) {
 					const roleId = principleData[0].profile_type;
@@ -1970,6 +1985,7 @@ exports.validationCheck = async (req, res, next) => {
 			case 'principle': {
 				const principleData = await UserModel.find({
 					mobile,
+					designation: 'principle',
 				});
 				if (principleData.length) {
 					const roleId = principleData[0].profile_type;
@@ -1998,6 +2014,7 @@ exports.validationCheck = async (req, res, next) => {
 			case 'management': {
 				const managementData = await UserModel.find({
 					mobile,
+					designation: 'management',
 				});
 				if (managementData.length) {
 					const roleId = managementData[0].profile_type;

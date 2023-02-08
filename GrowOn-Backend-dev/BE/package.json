@@ -7,7 +7,7 @@
 		"sonar": "node sonar-project.js",
 		"start": "node index.js",
 		"dev": "nodemon index.js",
-		"test": "jest --coverage",
+		"test": "jest --coverage --config=./jest.config.js",
 		"apidoc": "apidoc -i apidoc/ -o public/apidoc",
 		"swagger-gen": "node ./swagger.js",
 		"lint": "eslint .",

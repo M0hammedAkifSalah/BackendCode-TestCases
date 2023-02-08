@@ -1,7 +1,4 @@
 const cron = require('node-cron');
-const { appsignal } = require('../../appsignal');
-
-const tracer = appsignal.tracer();
 
 const generateStudentReport = require('../../helper/generateExcelReport.js');
 
@@ -9,8 +6,6 @@ const Assignment = require('../../model/assignment');
 
 cron.schedule('0 0 1 * *', async () => {
 	try {
-		console.log('hit');
-
 		// check for the last day of the month
 		const today = new Date();
 		const tomorrow = new Date();
@@ -137,7 +132,6 @@ cron.schedule('0 0 1 * *', async () => {
 			}
 		}
 	} catch (e) {
-		console.error('error', e);
-		tracer.setError(e);
+		console.error(e);
 	}
 });

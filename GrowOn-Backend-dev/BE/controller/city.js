@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const CityModel = require('../model/city');
-const APIFeatures = require('../utils/apiFeatures');
+
+const redisClient = require('../config/redisClient');
+const catchAsync = require('../utils/catchAsync');
 
 exports.Create = (req, res, next) => {
 	try {
@@ -53,26 +55,27 @@ exports.Create = (req, res, next) => {
 	}
 };
 
-exports.getAllData = async (req, res) => {
-	try {
-		const features = new APIFeatures(CityModel.find({}), req.query)
-			.filter()
-			.sort()
-			.limitFields()
-			.paginate();
-		const city = await features.query;
-		res.status(200).json({
-			message: 'success',
-			result: city.length,
-			data: city,
-		});
-	} catch (err) {
-		res.status(400).json({
-			status: 'failed',
-			message: err,
+exports.getAllData = catchAsync(async (req, res) => {
+	const cacheKey = `cities:all`;
+	const cachedData = await redisClient.GET(cacheKey);
+
+	let citiesData = [];
+	if (cachedData) {
+		citiesData = JSON.parse(cachedData);
+	} else {
+		citiesData = await CityModel.find({});
+		await redisClient.SET(cacheKey, JSON.stringify(citiesData), {
+			EX: 24 * 60 * 60,
 		});
 	}
-};
+
+	res.status(200).json({
+		status: 200,
+		message: 'success',
+		results: citiesData.length,
+		data: citiesData,
+	});
+});
 
 exports.getByID = async (req, res) => {
 	try {

@@ -11,6 +11,9 @@ router.post('/login', student.login);
 router.post('/search', student.search);
 router.post('/searchStudents', student.searchStudent);
 
+router.post('/enroll', student.enroll);
+router.get('/countBySchool', student.countBySchool);
+
 router.post('/find', student.find);
 router.post('/updatePassword', student.UpdatePassword);
 router.post('/profile/:id', student.UpdateStudentData);
@@ -31,6 +34,8 @@ router.route('/:id/rewards').get(student.getStudentsRewards);
 
 router.post('/excelSheet', student.excelworksheet);
 
+router.post('/download', student.exceldownload);
+
 router.get('/dashboard', student.GetDashoardData);
 router.post('/dashboard', student.GetDashoardDataPost);
 router.post('/dashboardCount', student.GetDashoardDataCount);
@@ -46,8 +51,13 @@ router.get('/GetAllStudentIds', student.GetAllStudentIds);
 router.post('/addActiveStatusInUsers', student.addActiveStatusInUsers);
 router.post('/deleteSectionFromStudents', student.deleteSectionFromStudents);
 
+// This is router for fetching the students by section_id
+router.get('/section/:sectionId', student.studentBySection);
+
 router.route('/').post(student.Create).get(student.Get);
 router.route('/createManyStudent').post(student.CreateMany);
+
+router.post('/enroll', student.enroll);
 
 router.route('/get').get(student.Get);
 

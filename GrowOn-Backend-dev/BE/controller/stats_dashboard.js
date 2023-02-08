@@ -15,6 +15,7 @@ const redisClient = require('../config/redisClient');
 const catchAsync = require('../utils/catchAsync');
 const SuccessResponse = require('../utils/successResponse');
 const ErrorResponse = require('../utils/errorResponse');
+const Student = require('../model/student');
 
 exports.userByRole = catchAsync(async (req, res) => {
 	const obj = [];
@@ -2276,6 +2277,74 @@ exports.studentdashboardCountPost = catchAsync(async (req, res, next) => {
 		status: 200,
 		count,
 	});
+});
+
+exports.schoolStudentGender = catchAsync(async (req, res, next) => {
+	const dashboardData = await Student.aggregate([
+		{
+			$group: {
+				_id: '$school_id',
+				totalStudents: {
+					$sum: 1,
+				},
+				boys: {
+					$sum: {
+						$cond: [
+							{
+								$eq: ['$gender', 'Male'],
+							},
+							1,
+							0,
+						],
+					},
+				},
+				girls: {
+					$sum: {
+						$cond: [
+							{
+								$eq: ['$gender', 'Female'],
+							},
+							1,
+							0,
+						],
+					},
+				},
+			},
+		},
+		{
+			$lookup: {
+				from: 'schools',
+				localField: '_id',
+				foreignField: '_id',
+				as: 'school',
+			},
+		},
+		{
+			$project: {
+				schoolName: {
+					$first: '$school.schoolName',
+				},
+				schoolCode: {
+					$first: '$school.school_code',
+				},
+				totalStudents: 1,
+				boys: 1,
+				girls: 1,
+			},
+		},
+		{
+			$sort: {
+				schoolName: 1,
+			},
+		},
+	]);
+	if (!dashboardData) {
+		return next(res.status(400).json(new ErrorResponse('No data found', 400)));
+	}
+
+	res
+		.status(200)
+		.json(SuccessResponse(dashboardData, dashboardData.length, 'Fetched Data'));
 });
 
 exports.studentClassList = catchAsync(async (req, res, next) => {

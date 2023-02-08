@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 const moment = require('moment');
 const mongoose = require('mongoose');
 const SchoolModel = require('../model/school');
@@ -52,30 +53,41 @@ exports.getAll = catchAsync(async (req, res, next) => {
  * @returns {object} payload with created object.
  */
 exports.create = catchAsync(async (req, res, next) => {
-	const { teacherId, schoolId } = req.body;
+	const { teacherId, schoolId, date } = req.body;
+
 	if (!teacherId || !schoolId) {
 		return next(new ErrorResponse('schoolId and teacherId are required', 422));
 	}
-	try {
-		const school = await SchoolModel.findOne(
-			{ _id: schoolId },
-			{ loginTime: 1 }
-		).lean();
-		if (!school.loginTime) {
-			return next(new ErrorResponse('School must have loginTime', 204));
-		}
-		const isLate = new Date().getTime() > new Date(school.loginTime).getTime();
-		const status = isLate ? 'LATE' : 'PRESENT';
-		const payload = new UserAttendance({
-			teacherId,
-			schoolId,
-			status,
-		});
-		await payload.save();
-		res.status(201).json(SuccessResponse(payload, 1, 'Created Successfully'));
-	} catch (err) {
-		return next(new ErrorResponse(err.message, 400));
+	const isTodayMarked = await UserAttendance.findOne({ teacherId, date });
+
+	if (isTodayMarked) {
+		return next(
+			res
+				.status(400)
+				.json(new ErrorResponse('attendance is already marked', 400))
+		);
 	}
+
+	const school = await SchoolModel.findOne(
+		{ _id: schoolId },
+		{ loginTime: 1 }
+	).lean();
+
+	if (!school.loginTime) {
+		return next(new ErrorResponse('School must have loginTime', 400));
+	}
+
+	const isLate = new Date().getTime() > new Date(school.loginTime).getTime();
+	const status = isLate ? 'LATE' : 'PRESENT';
+	const payload = new UserAttendance({
+		teacherId,
+		schoolId,
+		status,
+		date,
+	});
+	await payload.save();
+
+	res.status(201).json(SuccessResponse(payload, 1, 'Created Successfully'));
 });
 
 /**
@@ -93,17 +105,13 @@ exports.getAllAttendance = catchAsync(async (req, res, next) => {
 	if (!schoolId || !date) {
 		return next(new ErrorResponse('schoolId and date are required', 422));
 	}
-	const currDate = moment(date, 'MM-DD-YYYY');
-	let lastWeekDate = moment(date, 'MM-DD-YYYY').subtract(7, 'day');
-	const yesterday = moment(date, 'MM-DD-YYYY').subtract(1, 'day');
+	const currDate = moment.utc(date);
+	let lastWeekDate = moment.utc(date).subtract(7, 'days');
+	const yesterday = moment.utc(date).subtract(1, 'days');
+
 	const isTodayMarked = await UserAttendance.find({
 		schoolId,
-		$expr: {
-			$and: [
-				{ $eq: [{ $dayOfMonth: '$date' }, new Date(date).getDate()] },
-				{ $eq: [{ $month: '$date' }, new Date(date).getMonth() + 1] },
-			],
-		},
+		date: currDate._d,
 	}).lean();
 	if (isTodayMarked.length) {
 		for (const rec of isTodayMarked) {
@@ -118,8 +126,9 @@ exports.getAllAttendance = catchAsync(async (req, res, next) => {
 		return next(new ErrorResponse('No users found', 204));
 	}
 	const isWeekDoc = await UserAttendance.find({
+		isApproved: true,
 		schoolId,
-		date: { $gte: lastWeekDate, $lt: currDate },
+		date: { $gte: lastWeekDate._d, $lt: currDate._d },
 	})
 		.sort({ date: -1 })
 		.lean();
@@ -135,7 +144,7 @@ exports.getAllAttendance = catchAsync(async (req, res, next) => {
 				el.lastWeek = el.lastWeek.splice(-7);
 				el.status = todayObj[el.teacherId]
 					? todayObj[el.teacherId]
-					: 'NOT_TAKEN';
+					: 'NOT_MARKED';
 				lastDay[el.teacherId] = {
 					lastWeek: el.lastWeek,
 					status: el.status,
@@ -167,28 +176,42 @@ exports.getAllAttendance = catchAsync(async (req, res, next) => {
  * @returns Acknowledgement message.
  */
 exports.updateAllAttendance = catchAsync(async (req, res, next) => {
+	let statusInc;
 	const userObj = {};
+	const bulkOpsAtt = [];
+	const bulkOpsRep = [];
+	const bulkOpsUser = [];
 	let lastWeek;
 	const { schoolId, userList, date } = req.body;
+
 	if (!schoolId || !userList || !date) {
 		return res
 			.status(422)
 			.json(new ErrorResponse('schoolId, userList, and date is required', 422));
 	}
-	let startDate = moment(date, 'MM-DD-YYYY').subtract(7, 'day');
-	const queryDate = moment(date, 'MM-DD-YYYY').subtract(7, 'day');
-	const currDate = moment(date, 'MM-DD-YYYY').date();
-	const month = moment(startDate).month() + 1;
-	const year = moment(startDate).year();
-	const dateArray = [];
+	const tempDate = moment(date);
+	const isTodayMarked = await UserAttendance.findOne({
+		schoolId,
+		date: tempDate._d,
+		isApproved: true,
+	});
 
+	if (isTodayMarked) {
+		return res.status(200).json(SuccessResponse([], 0, 'Already Confirmed'));
+	}
+
+	let startDate = moment.utc(date).subtract(7, 'day');
+	const queryDate = moment.utc(date).subtract(7, 'day');
+	const currDate = moment.utc(date).date();
+	const month = moment.utc(date).month() + 1;
+	const year = moment.utc(date).year();
+	const dateArray = [];
 	if (!startDate.isValid()) {
 		return next(new ErrorResponse('Invalid date format', 400));
 	}
 
 	for (let i = 0; i < 7; i++) {
-		const temp = moment(startDate).date();
-		dateArray.push(temp); // [8,9,10,11,12,13,14]
+		dateArray.push(startDate.date()); // [8,9,10,11,12,13,14]
 		startDate = moment(startDate, 'MM-DD-YYYY').add(1, 'day');
 	}
 
@@ -198,8 +221,8 @@ exports.updateAllAttendance = catchAsync(async (req, res, next) => {
 			$match: {
 				schoolId: mongoose.Types.ObjectId(schoolId),
 				date: {
-					$gte: new Date(queryDate),
-					$lt: new Date(date),
+					$gte: queryDate._d,
+					$lt: tempDate._d,
 				},
 			},
 		},
@@ -230,9 +253,7 @@ exports.updateAllAttendance = catchAsync(async (req, res, next) => {
 						as: 'input',
 						in: {
 							k: {
-								$toString: {
-									$add: ['$$input.day', 1],
-								},
+								$toString: '$$input.day',
 							},
 							v: '$$input.status',
 						},
@@ -257,76 +278,107 @@ exports.updateAllAttendance = catchAsync(async (req, res, next) => {
 	for (const user of userList) {
 		lastWeek = new Array(6).fill('NOT_MARKED');
 		if (weekAttendance.length) {
-			lastWeek = [];
 			const weekObj = userObj[user.teacherId];
 			// eslint-disable-next-line no-loop-func
-			dateArray.forEach(key => {
-				if (weekObj[key]) {
-					// 4: status(4), 5: status(5)
+			const weekObjKeys = new Set(
+				weekObj && typeof weekObj === 'object' ? Object.keys(weekObj) : []
+			);
+
+			for (const key of dateArray) {
+				if (weekObj && weekObjKeys.has(String(key))) {
 					lastWeek.push(weekObj[key]);
-				} else {
-					lastWeek.push('NOT_MARKED');
+					continue;
+				} else if (key === 1 && weekObj && weekObj[32]) {
+					lastWeek.push(weekObj[32]);
+					continue;
 				}
-			});
+				lastWeek.push('NOT_MARKED');
+			}
+			lastWeek = lastWeek.splice(-6);
 		}
 		lastWeek.push(user.status);
-
-		try {
-			await UserAttendance.updateOne(
-				{
-					teacherId: user.teacherId,
-					schoolId,
-					date: new Date(date),
+		switch (user.status) {
+			case 'PRESENT':
+				statusInc = { $inc: { 'attendanceStats.present': 1 } };
+				break;
+			case 'ABSENT':
+				statusInc = { $inc: { 'attendanceStats.absent': 1 } };
+				break;
+			case 'LATE':
+				statusInc = { $inc: { 'attendanceStats.late': 1 } };
+				break;
+			case 'EXCUSED':
+				statusInc = { $inc: { 'attendanceStats.excused': 1 } };
+				break;
+			default:
+				break;
+		}
+		bulkOpsAtt.push({
+			updateOne: {
+				filter: {
+					teacherId: mongoose.Types.ObjectId(user.teacherId),
+					date: tempDate._d,
+					schoolId: mongoose.Types.ObjectId(schoolId),
 				},
-				{
+				update: {
 					$set: {
 						status: user.status,
-						isApproved: true,
 						lastWeek,
+						month,
+						year,
+						isApproved: true,
 					},
 				},
-				{
-					upsert: true,
-				}
-			);
-			const queryObj = {
-				teacherId: user.teacherId,
-				schoolId,
-				month,
-				year,
-			};
+				upsert: true,
+			},
+		});
+		bulkOpsUser.push({
+			updateOne: {
+				filter: { _id: user.teacherId },
+				update: statusInc,
+			},
+		});
 
-			let foundAttendanceReport = await UserAttendanceReport.findOne(queryObj);
+		const queryObj = {
+			teacherId: user.teacherId,
+			schoolId,
+			month,
+			year,
+		};
 
-			if (!foundAttendanceReport) {
-				foundAttendanceReport = await UserAttendanceReport.create({
-					days: [],
-					...queryObj,
-				});
-			}
+		let foundAttendanceReport = await UserAttendanceReport.findOne(queryObj);
 
-			const currentIdx = foundAttendanceReport.days.findIndex(
-				obj => obj.day === currDate
-			);
-
-			const dayObj = {
-				day: currDate,
-				status: user.status,
-				workingHours: 0,
-			};
-
-			if (currentIdx < 0) {
-				foundAttendanceReport.days.push(dayObj);
-			} else {
-				foundAttendanceReport.days[currentIdx] = dayObj;
-			}
-			// $inc: { view: counter },
-			await foundAttendanceReport.save();
-		} catch (err) {
-			next(new ErrorResponse('attendance updation failed', 500));
+		if (!foundAttendanceReport) {
+			foundAttendanceReport = await UserAttendanceReport.create({
+				days: [],
+				...queryObj,
+			});
 		}
-	}
 
+		const currentIdx = foundAttendanceReport.days.findIndex(
+			obj => obj.day === currDate
+		);
+
+		const dayObj = {
+			day: currDate,
+			status: user.status,
+			workingHours: 0,
+		};
+
+		if (currentIdx < 0) {
+			foundAttendanceReport.days.push(dayObj);
+		} else {
+			foundAttendanceReport.days[currentIdx] = dayObj;
+		}
+		// $inc: { view: counter },
+		await foundAttendanceReport.save();
+	}
+	try {
+		await UserAttendance.bulkWrite(bulkOpsAtt);
+		await User.bulkWrite(bulkOpsUser);
+	} catch (err) {
+		console.log('catch error', err.message);
+	}
 	res
 		.status(201)
 		.json(SuccessResponse(null, userList.length, 'Marked Attendance'));
@@ -338,14 +390,7 @@ exports.updateAllAttendance = catchAsync(async (req, res, next) => {
  * @returns {object} foundAttendance with found object.
  */
 exports.verifyLocation = catchAsync(async (req, res, next) => {
-	const {
-		user,
-		user: { school_id = null },
-	} = req;
-	const { longitude, latitude } = req.body;
-
-	if (!user || !user._id)
-		return next(new ErrorResponse('User must logged in', 401));
+	const { longitude, latitude, school_id } = req.body;
 
 	if (!longitude || !latitude)
 		return next(new ErrorResponse('Longitude & Latitude is required', 400));
@@ -381,6 +426,71 @@ exports.verifyLocation = catchAsync(async (req, res, next) => {
 	if (!foundSchool) return next(new ErrorResponse('Not in location', 403));
 
 	return res.status(200).json(SuccessResponse('success', 1, 'In location'));
+});
+
+/**
+ * Fetches the report of the teachers for the given month
+ * @function
+ * @async
+ * @param {Object} req - Express request object (schoolId, date)
+ * @param {Object} res - Express response object
+ * @param {function} next - Express next middleware function
+ * @returns {Object} - JSON object with attendance data and summary statistics
+ * @throws {ErrorResponse} - When input is invalid or no data is found
+ */
+exports.report = catchAsync(async (req, res, next) => {
+	let { schoolId, date } = req.query;
+	let totalPresent = 0;
+	let totalAbsent = 0;
+	let totalLate = 0;
+	let totalExcused = 0;
+
+	if (!schoolId || !date) {
+		return next(new ErrorResponse('Invalid input', 422));
+	}
+
+	date = moment(date);
+
+	if (!date.isValid()) {
+		return next(new ErrorResponse('Invalid date', 422));
+	}
+
+	const month = moment.utc(date).month() + 1;
+	const year = moment.utc(date).year();
+	const attendanceData = await UserAttendanceReport.find({
+		schoolId,
+		month,
+		year,
+	})
+		.populate('teacherId', 'name attendanceStats profile_image username')
+		.lean();
+
+	if (attendanceData.length === 0) {
+		return next(new ErrorResponse('No data found', 404));
+	}
+
+	for (const user of attendanceData) {
+		totalPresent += user.present;
+		totalAbsent += user.absent;
+		totalLate += user.late;
+		totalExcused += user.excused;
+
+		user.days = (user.days || []).map(day => ({
+			...day,
+			date: moment(`${year}-${month}-${day.day}`, 'YYYY-MM-DD').add(1, 'days'),
+		}));
+	}
+
+	const responseObj = {
+		totalDaysMarked: totalPresent + totalAbsent + totalLate + totalExcused,
+		totalPresent,
+		totalAbsent,
+		totalLate,
+		totalExcused,
+		attendanceData,
+	};
+
+	res.status(200).json(SuccessResponse(responseObj, 1, 'Fetched SuccessFully'));
 });
 
 /**
@@ -443,9 +553,8 @@ exports.deleteById = catchAsync(async (req, res, next) => {
  */
 exports.userMonthlyReport = catchAsync(async (req, res, next) => {
 	const { teacherId, date } = req.query;
-
-	const month = moment(date, 'MM-DD-YYYY').month() + 1;
-	const year = moment(date, 'MM-DD-YYYY').year();
+	const month = moment.utc(date).month() + 1;
+	const year = moment.utc(date).year();
 
 	const foundAttendanceReport = await UserAttendanceReport.findOne({
 		teacherId,
@@ -467,10 +576,12 @@ exports.userMonthlyReport = catchAsync(async (req, res, next) => {
 	});
 	foundAttendanceReport.days = (foundAttendanceReport.days || []).map(day => ({
 		...day,
-		date: moment(`${year}-${month}-${day.day}`).format('DD-MM-YYYY'),
+		date: moment(`${year}-${month}-${day.day}`, 'YYYY-MM-DD').add(1, 'days'),
 	}));
 	foundAttendanceReport.totalAttendance = foundAttendanceReport.days.length;
-	foundAttendanceReport.today = isTodayMarked ? isTodayMarked.status : null;
+	foundAttendanceReport.today = isTodayMarked
+		? isTodayMarked.status
+		: 'NOT_MARKED';
 
 	res.status(200).json(SuccessResponse(foundAttendanceReport, 1, 'success'));
 });

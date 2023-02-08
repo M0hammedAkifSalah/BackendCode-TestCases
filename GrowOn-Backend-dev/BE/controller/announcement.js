@@ -137,9 +137,13 @@ exports.Create = catchAsync(async (req, res, next) => {
 	try {
 		firebaseNoti.sendToDeviceFirebase(payload, deviceIds);
 
+		const { permissions: { can_send_announcement_sms = false } = {} } =
+			req.user;
+
 		if (
 			(NODE_ENV === 'production' || NODE_ENV === 'preprod') &&
-			notifyMethods.includes('SMS')
+			notifyMethods.includes('SMS') &&
+			can_send_announcement_sms
 		) {
 			allUsers.forEach(async usr => {
 				const sendBaseUrl = `http://sms.smslab.in/api/sendhttp.php?authkey=${SMS_LAB_AUTHKEY}&sender=${SMS_LAB_SENDERA}&route=4&country=91&response=json&DLT_TE_ID=${SMS_LAB_DLT_ANNOUNCEMENT}`;
@@ -317,6 +321,42 @@ exports.GetById = catchAsync(async (req, res, next) => {
 
 exports.Update = catchAsync(async (req, res, next) => {
 	const { id } = req.params;
+	const {
+		title = null,
+		description = null,
+		assignedTo = null,
+		attachments = null,
+	} = req.body;
+
+	const updateObj = {};
+
+	if (title) updateObj.title = title;
+	if (description) updateObj.description = description;
+	if (assignedTo) updateObj.assignedTo = assignedTo;
+	if (attachments) updateObj.attachments = attachments;
+
+	const updatedAnnouncement = await AnnouncementModel.findOneAndUpdate(
+		{ _id: id },
+		updateObj,
+		{
+			new: true,
+		}
+	).select({
+		title: 1,
+		description: 1,
+		assignedTo: 1,
+		attachments: 1,
+	});
+
+	if (!updatedAnnouncement) {
+		return next(new ErrorResponse('Announcement not found', 404));
+	}
+
+	res.status(201).json(SuccessResponse(updatedAnnouncement, 1));
+});
+
+exports.Delete = catchAsync(async (req, res, next) => {
+	const { id } = req.params;
 
 	const foundAnnouncement = await AnnouncementModel.findById(id);
 
@@ -324,17 +364,15 @@ exports.Update = catchAsync(async (req, res, next) => {
 		return next(new ErrorResponse('Announcement not found', 404));
 	}
 
-	const updatedAnnouncement = await AnnouncementModel.update(
-		{ _id: id },
-		{
-			...req.body,
-		},
-		{
-			new: true,
-		}
-	);
+	const deletedAnnouncement = await AnnouncementModel.findOneAndDelete({
+		_id: id,
+	});
 
-	res.status(201).json(SuccessResponse(updatedAnnouncement, 1));
+	if (!deletedAnnouncement) {
+		return next(new ErrorResponse('Announcement not found', 404));
+	}
+
+	res.status(201).json(SuccessResponse(null, 1, 'Deleted successfully'));
 });
 
 exports.AddLike = catchAsync(async (req, res, next) => {

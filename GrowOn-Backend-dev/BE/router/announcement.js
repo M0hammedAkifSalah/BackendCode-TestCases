@@ -11,7 +11,8 @@ router
 router
 	.route('/:id')
 	.get(announcementController.GetById)
-	.put(announcementController.Update);
+	.put(announcementController.Update)
+	.delete(announcementController.Delete);
 
 router
 	.route('/:id/like')

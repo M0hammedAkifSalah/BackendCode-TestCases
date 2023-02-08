@@ -1,7 +1,4 @@
 const cron = require('node-cron');
-const { appsignal } = require('../../appsignal');
-
-const tracer = appsignal.tracer();
 
 const generateAttendanceReport = require('../../helper/generateAttendanceReport');
 
@@ -34,7 +31,6 @@ cron.schedule('0 22 * * *', async () => {
 			throw new Error(rejected);
 		}
 	} catch (e) {
-		console.error('error', e);
-		tracer.setError(e);
+		console.error(e);
 	}
 });

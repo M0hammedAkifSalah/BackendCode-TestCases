@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
 		ref: 'Role',
 		required: true,
 	},
+	permissions: {
+		type: Object,
+		default: { can_send_announcement_sms: false },
+	},
 	// no diff in role & profiletype
 	// delete profile_type in future
 	profile_type: {
@@ -115,6 +119,7 @@ const userSchema = new mongoose.Schema({
 	secondary_class: {
 		type: [
 			{
+				_id: false,
 				secondClasses: {
 					type: mongoose.Schema.Types.ObjectId,
 					ref: 'Class',

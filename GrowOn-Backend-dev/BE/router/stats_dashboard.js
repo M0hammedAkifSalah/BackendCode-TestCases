@@ -56,6 +56,8 @@ router.get(
 );
 router.get('/student/genderCount', statsController.genderCount);
 
+router.get('/student/adminDashboard', statsController.schoolStudentGender);
+
 // totalStats  branchCount  studentCount studentClassList
 // router.get('/count', questionController.GetNumber);
 // router.get('/filter', questionController.filterData);

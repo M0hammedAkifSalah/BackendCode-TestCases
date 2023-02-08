@@ -35,7 +35,7 @@ const UserAttendanceReportSchema = new Schema(
 					},
 					status: {
 						type: String,
-						enum: ['PRESENT', 'ABSENT', 'LATE', 'PARTIAL'],
+						enum: ['PRESENT', 'ABSENT', 'LATE', 'PARTIAL', 'EXCUSED'],
 						required: true,
 					},
 					workingHours: Number,

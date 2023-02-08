@@ -28,6 +28,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const catchAsync = require('../utils/catchAsync');
 const passwordUtil = require('../utils/password');
 const SuccessResponse = require('../utils/successResponse');
+const Student = require('../model/student');
 
 const getAllCollections = async () => {
 	const collections = await mongoose.connection.db.listCollections().toArray();
@@ -336,6 +337,116 @@ exports.Create = catchAsync(async (req, res, next) => {
 					});
 				});
 		});
+});
+
+exports.enroll = catchAsync(async (req, res, next) => {
+	const { body } = req;
+	const studentRole = await RoleModel.findOne({ role_name: 'student' });
+	const parentRole = await RoleModel.findOne({ role_name: 'parent' });
+
+	if (!studentRole || !parentRole) {
+		return next(new ErrorResponse('Role not found', 400));
+	}
+
+	let parentId = new mongoose.Types.ObjectId();
+	const studentId = body._id || new mongoose.Types.ObjectId();
+	// Get parent id from UserDB else create new
+	if (body.p_username) {
+		const parent = await ParentModel.findOne({
+			username: body.p_username,
+		});
+
+		if (parent) {
+			parentId = parent._id;
+		}
+	}
+
+	let primaryParentKey;
+	let primaryParentNumber;
+	let pNameKey;
+	let parentType;
+
+	// Figureout guardian
+	switch (body.guardian) {
+		case 'father':
+			primaryParentKey = 'f_contact_number';
+			primaryParentNumber = body.f_contact_number;
+			pNameKey = 'father_name';
+			parentType = 'FATHER';
+
+			break;
+		case 'mother':
+			primaryParentKey = 'm_contact_number';
+			primaryParentNumber = body.m_contact_number;
+			pNameKey = 'mother_name';
+			parentType = 'MOTHER';
+			break;
+		default:
+			primaryParentKey = 'guardian_mobile';
+			primaryParentNumber = body.guardian_mobile;
+			pNameKey = 'guardian_name';
+			parentType = 'GUARDIAN';
+			break;
+	}
+
+	const parentObj = {
+		...body,
+		activeStatus: true,
+		profile_type: 'Parent',
+		role: parentRole._id,
+		username: body.p_username,
+		guardian: body.guardian,
+		[pNameKey]: body.p_name,
+		parentType,
+		name: body.p_name,
+	};
+
+	const foundParents = await ParentModel.find({
+		$and: [
+			{ guardian: body.guardian },
+			{ [primaryParentKey]: primaryParentNumber },
+		],
+	});
+
+	if (foundParents.length >= 10) {
+		throw new Error('Parent length is > 10');
+	}
+
+	const savedStudent = await StudentModel.updateOne(
+		{ _id: studentId },
+		{
+			...body,
+			username: body.p_username,
+			activeStatus: true,
+			profile_type: 'Student',
+			role: studentRole._id,
+			parent_id: parentId,
+			deleted: false,
+		},
+		{ upsert: true, new: true, runValidators: true }
+	);
+
+	if (!savedStudent) {
+		throw new Error('Failed to save student');
+	}
+
+	body._id = savedStudent._id;
+
+	const updatedParent = await ParentModel.updateOne(
+		{ _id: parentId },
+		{ ...parentObj, $push: { children: studentId } },
+		{ upsert: true, new: true, runValidators: true }
+	);
+
+	if (!updatedParent) {
+		throw new Error('error creating parent');
+	}
+
+	const statusCode = 201;
+
+	return res
+		.status(statusCode)
+		.json(SuccessResponse(null, 1, 'Created Successfully'));
 });
 
 exports.CreateMany = async (req, res, next) => {
@@ -994,6 +1105,160 @@ exports.GetAllStudentIds = async (req, res, next) => {
 	}
 };
 
+exports.exceldownload = catchAsync(async (req, res, next) => {
+	const { schoolId } = req.body;
+	const workbook = new excel.Workbook();
+	const school = await SchoolModel.findById(mongoose.Types.ObjectId(schoolId));
+	const worksheet = workbook.addWorksheet(`${school.schoolName}`);
+	const style = workbook.createStyle({
+		font: {
+			bold: true,
+			color: '#000000',
+			size: 12,
+		},
+		numberFormat: '$#,##0.00; ($#,##0.00); -',
+	});
+	worksheet.cell(1, 1).string('NAME').style(style);
+	worksheet.cell(1, 2).string('MOBILE').style(style);
+	worksheet.cell(1, 3).string('CLASS').style(style);
+	worksheet.cell(1, 4).string('SECTION').style(style);
+	worksheet.cell(1, 5).string('GENDER').style(style);
+	worksheet.cell(1, 6).string('SCHOOL').style(style);
+	const students = await StudentModel.aggregate([
+		{
+			$match: {
+				school_id: mongoose.Types.ObjectId(schoolId),
+			},
+		},
+		{
+			$project: {
+				_id: 0,
+				name: 1,
+				gender: 1,
+				username: 1,
+				section: 1,
+				class: 1,
+				parent_id: 1,
+				school_id: 1,
+			},
+		},
+		{
+			$lookup: {
+				from: 'classes',
+				let: {
+					classId: '$class',
+				},
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ['$$classId', '$_id'],
+							},
+						},
+					},
+					{
+						$project: {
+							name: 1,
+							sequence_number: 1,
+						},
+					},
+				],
+				as: 'class',
+			},
+		},
+		{
+			$lookup: {
+				from: 'sections',
+				let: {
+					sectionId: '$section',
+				},
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ['$$sectionId', '$_id'],
+							},
+						},
+					},
+					{
+						$project: {
+							name: 1,
+						},
+					},
+				],
+				as: 'section',
+			},
+		},
+		{
+			$lookup: {
+				from: 'schools',
+				let: {
+					school: '$school_id',
+				},
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$eq: ['$$school', '$_id'],
+							},
+						},
+					},
+					{
+						$project: {
+							schoolName: 1,
+						},
+					},
+				],
+				as: 'school',
+			},
+		},
+		{
+			$unwind: '$school',
+		},
+		{
+			$unwind: '$class',
+		},
+		{
+			$unwind: '$section',
+		},
+		{
+			$project: {
+				class: '$class.name',
+				section: '$section.name',
+				name: 1,
+				mobile: '$username',
+				gender: 1,
+				school: '$school.schoolName',
+				sequence_number: '$class.sequence_number',
+			},
+		},
+		{
+			$sort: {
+				sequence_number: 1,
+			},
+		},
+	]);
+	let row = 2;
+	let col = 1;
+	students.forEach(async stud => {
+		worksheet.cell(row, col).string(stud.name);
+		worksheet.cell(row, col + 1).string(stud.mobile);
+		worksheet.cell(row, col + 2).string(stud.class);
+		worksheet.cell(row, col + 3).string(stud.section);
+		worksheet.cell(row, col + 4).string(stud.gender);
+		worksheet.cell(row, col + 5).string(stud.school);
+		row += 1;
+		col = 1;
+	});
+
+	// workbook.write('STUDENT_LIST.xlsx');
+
+	let data = await workbook.writeToBuffer();
+	data = data.toJSON().data;
+
+	res.status(200).json(SuccessResponse(data, data.length, 'fetched'));
+});
+
 exports.excelworksheet = catchAsync(async (req, res, next) => {
 	const { schools, class_id } = req.body;
 	const workbook = new excel.Workbook();
@@ -1374,17 +1639,18 @@ exports.GetDashoardDataPost = async (req, res, next) => {
 	});
 };
 
-exports.GetDashoardDataCount = async (req, res, next) => {
-	const features = new APIFeatures(
-		StudentModel.find({}, {}).limit(100000).count(true),
-		req.body
-	).filter();
-	const getAllStudent = await features.query;
+exports.GetDashoardDataCount = catchAsync(async (req, res, next) => {
+	const features = new APIFeatures(StudentModel.find({}, {}), req.body)
+		.filter()
+		.count();
+
+	const allStudCount = await features.query;
+
 	res.status(200).json({
 		status: 'success',
-		result: getAllStudent.length,
+		result: allStudCount,
 	});
-};
+});
 
 exports.BulkUpdate = async (req, res, next) => {
 	try {
@@ -2039,6 +2305,18 @@ exports.student_details_count_post = catchAsync(async (req, res, next) => {
 	});
 });
 
+exports.countBySchool = catchAsync(async (req, res, next) => {
+	const features = new APIFeatures(StudentModel.find({}), req.query)
+		.filter()
+		.count();
+
+	const studCount = await features.query;
+
+	res.status(200).json({
+		count: studCount,
+	});
+});
+
 exports.updateDeviceToken = async (req, res, next) => {
 	StudentModel.findOneAndUpdate(
 		{
@@ -2244,6 +2522,102 @@ exports.addActiveStatusInUsers = async (req, res, next) => {
 		parentCounter,
 	});
 };
+
+exports.studentBySection = catchAsync(async (req, res, next) => {
+	const { sectionId } = req.params;
+	const students = await StudentModel.aggregate([
+		{
+			$match: {
+				section: mongoose.Types.ObjectId(sectionId),
+			},
+		},
+		{
+			$project: {
+				_id: 1,
+				profile_image: 1,
+				class: 1,
+				name: 1,
+				section: 1,
+				school_id: 1,
+				assigned: '$assignment.assigned',
+				completed: '$assignment.completed',
+			},
+		},
+		{
+			$lookup: {
+				from: 'assignments',
+				let: {
+					studId: '$_id',
+				},
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$in: ['$$studId', '$assignTo.student_id'],
+							},
+						},
+					},
+					{
+						$limit: 7,
+					},
+					{
+						$sort: {
+							startDate: -1,
+						},
+					},
+					{
+						$project: {
+							assignTo: {
+								$filter: {
+									input: '$assignTo',
+									as: 'item',
+									cond: {
+										$eq: ['$$item.student_id', '$$studId'],
+									},
+								},
+							},
+						},
+					},
+					{
+						$unwind: '$assignTo',
+					},
+					{
+						$group: {
+							_id: '$assignTo.student_id',
+							status: {
+								$push: '$assignTo.status',
+							},
+						},
+					},
+				],
+				as: 'assignments',
+			},
+		},
+		{
+			$project: {
+				_id: 1,
+				profile_image: 1,
+				class: 1,
+				name: 1,
+				section: 1,
+				school_id: 1,
+				assigned: 1,
+				completed: 1,
+				assignments: {
+					$first: '$assignments.status',
+				},
+			},
+		},
+	]);
+	if (!students.length) {
+		return next(
+			res.status(404).json(new ErrorResponse('No Students Found', 404))
+		);
+	}
+	res
+		.status(200)
+		.json(SuccessResponse(students, students.length, 'Fetched students'));
+});
 
 exports.deleteSectionFromStudents = async (req, res, next) => {
 	const studentData = await StudentModel.find({
