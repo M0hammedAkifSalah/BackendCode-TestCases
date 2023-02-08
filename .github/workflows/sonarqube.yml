@@ -22,8 +22,9 @@ jobs:
           cd /home/runner/work/BackendCode-TestCases/BackendCode-TestCases/GrowOn-Backend-dev/BE
           npm install
           npm run test
+          
     - name: sonar scanning 
-    - uses: sonarsource/sonarqube-scan-action@master
+      uses: sonarsource/sonarqube-scan-action@master
       with:
         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       env:
