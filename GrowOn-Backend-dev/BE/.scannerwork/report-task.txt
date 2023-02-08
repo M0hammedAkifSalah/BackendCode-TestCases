@@ -1,6 +1,6 @@
-projectKey=Fresh
-serverUrl=http://localhost:9000
+projectKey=BE-Actions
+serverUrl=http://65.0.97.30:9000
 serverVersion=9.7.1.62043
-dashboardUrl=http://localhost:9000/dashboard?id=Fresh
+dashboardUrl=http://65.0.97.30:9000/dashboard?id=BE-Actions
 ceTaskId=AYYv54UCh0I9_uDtDuSp
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AYYv54UCh0I9_uDtDuSp
+ceTaskUrl=http://65.0.97.30:9000/api/ce/task?id=AYYv54UCh0I9_uDtDuSp
