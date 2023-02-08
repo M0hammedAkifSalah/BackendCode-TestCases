@@ -33,7 +33,8 @@ jobs:
         
     - name: SonarQube Quality Gate check
       id: sonarqube-quality-gate-check
-      uses: sonarsource/sonarqube-quality-gate-action@master
+      shell: bash
+    - uses: sonarsource/sonarqube-quality-gate-action@master
       with:
         scanMetadataReportFile: /home/runner/work/BackendCode-TestCases/BackendCode-TestCases/GrowOn-Backend-dev/BE/.scannerwork/report-task.txt
       timeout-minutes: 5
