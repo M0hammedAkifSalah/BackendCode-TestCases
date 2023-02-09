@@ -36,7 +36,7 @@ jobs:
       with:
          scanMetadataReportFile: /home/runner/work/BackendCode-TestCases/BackendCode-TestCases/GrowOn-Backend-dev/BE/.scannerwork/report-task.txt
       env:
-       SONAR_TOKEN: sqp_b6916181065544397f83972e14205ed04971ba53
+       SONAR_TOKEN: squ_48e513b49f9d894f3e8f5e56ebecdaf04733d171
        SONAR_HOST_URL: http://65.0.97.30:9000 
 
        
